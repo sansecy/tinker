@@ -44,6 +44,26 @@ public class SharePatchFileUtil {
 
     private static char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
+    private static final String[] sRandomPart = {null};
+
+    private static String getRandomPartOfPatchDirectory(ApplicationInfo applicationInfo) {
+        String result = sRandomPart[0];
+        if (result == null) {
+            synchronized (sRandomPart) {
+                result = sRandomPart[0];
+                if (result == null) {
+                    final String randomPathSegment = new File(applicationInfo.sourceDir).getParentFile().getName();
+                    final int packageNameLen = applicationInfo.packageName.length();
+                    result = sRandomPart[0] = (
+                            randomPathSegment.length() >= packageNameLen
+                            ? randomPathSegment.substring(packageNameLen) : ""
+                    );
+                }
+            }
+        }
+        return result;
+    }
+
     /**
      * data dir, such as /data/data/tinker.sample.android/tinker
      * @param context
@@ -55,8 +75,9 @@ public class SharePatchFileUtil {
             // Looks like running on a test Context, so just return without patching.
             return null;
         }
-        final String dirName = ("oppo".equalsIgnoreCase(Build.MANUFACTURER) && Build.VERSION.SDK_INT == 22)
-                ? ShareConstants.PATCH_DIRECTORY_NAME_SPEC : ShareConstants.PATCH_DIRECTORY_NAME;
+        final String randomNamePart = getRandomPartOfPatchDirectory(applicationInfo);
+        final String dirName = (("oppo".equalsIgnoreCase(Build.MANUFACTURER) && Build.VERSION.SDK_INT == 22)
+                ? ShareConstants.PATCH_DIRECTORY_NAME_SPEC : ShareConstants.PATCH_DIRECTORY_NAME) + randomNamePart;
         return new File(applicationInfo.dataDir, dirName);
     }
 
