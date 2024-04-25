@@ -224,7 +224,7 @@ public class SharePatchFileUtil {
         }
 
         if (file.exists()) {
-            ShareTinkerLog.i(TAG, "safeDeleteFile, try to delete path: " + file.getPath());
+//            ShareTinkerLog.i(TAG, "safeDeleteFile, try to delete path: " + file.getPath());
 
             boolean deleted = file.delete();
             if (!deleted) {
@@ -546,6 +546,8 @@ public class SharePatchFileUtil {
             try {
                 inputStream = resourceZip.getInputStream(arscEntry);
                 String md5 = SharePatchFileUtil.getMD5(inputStream);
+                ShareTinkerLog.i(TAG, "checkResourceArscMd5 resources.arsc current md5:" + md5);
+                ShareTinkerLog.i(TAG, "checkResourceArscMd5 resources.arsc expect md5:" + destMd5);
                 if (md5 != null && md5.equals(destMd5)) {
                     return true;
                 }
@@ -554,8 +556,8 @@ public class SharePatchFileUtil {
             }
 
         } catch (Throwable e) {
+            e.printStackTrace();
             ShareTinkerLog.i(TAG, "checkResourceArscMd5 throwable:" + e.getMessage());
-
         } finally {
             SharePatchFileUtil.closeZip(resourceZip);
         }

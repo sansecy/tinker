@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.tencent.tinker.lib.patch.AbstractPatch;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -199,6 +200,7 @@ public class TinkerPatchService extends IntentService {
     private static AtomicBoolean sIsPatchApplying = new AtomicBoolean(false);
 
     private static void doApplyPatch(Context context, Intent intent) {
+        Log.d(TAG, "doApplyPatch() called with: context = [" + context + "], intent = [" + intent + "]");
         // Since we may retry with IntentService, we should prevent
         // racing here again.
         if (!sIsPatchApplying.compareAndSet(false, true)) {

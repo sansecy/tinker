@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 import com.tencent.tinker.loader.shareutil.SharePatchFileUtil;
@@ -58,8 +59,6 @@ class TinkerResourcePatcher {
 
     // original object
     private static Collection<WeakReference<Resources>> references = null;
-
-    private static Map<Object, WeakReference<Object>> resourceImpls = null;
     private static Object currentActivityThread = null;
     private static AssetManager newAssetManager = null;
 
@@ -79,10 +78,6 @@ class TinkerResourcePatcher {
     private static Field stringBlocksField = null;
 
     private static long storedPatchedResModifiedTime = 0L;
-
-    private static Context packageContext = null;
-
-    private static Context packageResContext = null;
 
     @SuppressWarnings("unchecked")
     public static void isResourceCanPatch(Context context) throws Throwable {
@@ -104,11 +99,8 @@ class TinkerResourcePatcher {
 
         resDir = findField(loadedApkClass, "mResDir");
         packagesFiled = findField(activityThread, "mPackages");
-        try {
+        if (Build.VERSION.SDK_INT < 27) {
             resourcePackagesFiled = findField(activityThread, "mResourcePackages");
-        } catch (Throwable thr) {
-            ShareTinkerLog.printErrStackTrace(TAG, thr, "Fail to get mResourcePackages field.");
-            resourcePackagesFiled = null;
         }
 
         // Create a new AssetManager instance and point it to the resources
@@ -148,13 +140,6 @@ class TinkerResourcePatcher {
                 // N moved the resources to mResourceReferences
                 final Field mResourceReferences = findField(resourcesManagerClass, "mResourceReferences");
                 references = (Collection<WeakReference<Resources>>) mResourceReferences.get(resourcesManager);
-
-                try {
-                    final Field mResourceImplsField = findField(resourcesManagerClass, "mResourceImpls");
-                    resourceImpls = (Map<Object, WeakReference<Object>>) mResourceImplsField.get(resourcesManager);
-                } catch (Throwable ignored) {
-                    resourceImpls = null;
-                }
             }
         } else {
             final Field fMActiveResources = findField(activityThread, "mActiveResources");
@@ -196,21 +181,20 @@ class TinkerResourcePatcher {
      * @throws Throwable
      */
     public static void monkeyPatchExistingResources(Context context, String externalResourceFile, boolean isReInject) throws Throwable {
+        Log.d(TAG, "monkeyPatchExistingResources() called with: context = [" + context + "], externalResourceFile = [" + externalResourceFile + "], isReInject = [" + isReInject + "]");
         if (externalResourceFile == null) {
             return;
         }
 
         final ApplicationInfo appInfo = context.getApplicationInfo();
 
-        // Prevent cached LoadedApk being recycled.
-        packageContext = context.createPackageContext(context.getPackageName(), Context.CONTEXT_INCLUDE_CODE);
-        packageResContext = context.createPackageContext(context.getPackageName(), 0);
-
-        final Field[] packagesFields = new Field[]{packagesFiled, resourcePackagesFiled};
+        final Field[] packagesFields;
+        if (Build.VERSION.SDK_INT < 27) {
+            packagesFields = new Field[]{packagesFiled, resourcePackagesFiled};
+        } else {
+            packagesFields = new Field[]{packagesFiled};
+        }
         for (Field field : packagesFields) {
-            if (field == null) {
-                continue;
-            }
             final Object value = field.get(currentActivityThread);
 
             for (Map.Entry<String, WeakReference<?>> entry
@@ -253,6 +237,7 @@ class TinkerResourcePatcher {
             }
         }
 
+        //6.0及以上没有这个
         // Kitkat needs this method call, Lollipop doesn't. However, it doesn't seem to cause any harm
         // in L, so we do it unconditionally.
         if (stringBlocksField != null && ensureStringBlocksMethod != null) {
@@ -280,20 +265,6 @@ class TinkerResourcePatcher {
             clearPreloadTypedArrayIssue(resources);
 
             resources.updateConfiguration(resources.getConfiguration(), resources.getDisplayMetrics());
-        }
-
-        try {
-            if (resourceImpls != null) {
-                for (WeakReference<Object> wr : resourceImpls.values()) {
-                    final Object resourceImpl = wr.get();
-                    if (resourceImpl != null) {
-                        final Field implAssets = findField(resourceImpl, "mAssets");
-                        implAssets.set(resourceImpl, newAssetManager);
-                    }
-                }
-            }
-        } catch (Throwable ignored) {
-            // Ignored.
         }
 
         // Handle issues caused by WebView on Android N.
@@ -359,7 +330,7 @@ class TinkerResourcePatcher {
             RELAUNCH_ACTIVITY = fetchMessageId(hClazz, "RELAUNCH_ACTIVITY", 126);
 
             if (ShareTinkerInternals.isNewerOrEqualThanVersion(28, true)) {
-                EXECUTE_TRANSACTION  = fetchMessageId(hClazz, "EXECUTE_TRANSACTION ", 159);
+                EXECUTE_TRANSACTION = fetchMessageId(hClazz, "EXECUTE_TRANSACTION ", 159);
             } else {
                 EXECUTE_TRANSACTION = -1;
             }

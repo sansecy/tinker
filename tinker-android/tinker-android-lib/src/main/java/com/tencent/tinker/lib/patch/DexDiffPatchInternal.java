@@ -546,6 +546,7 @@ public class DexDiffPatchInternal extends BasePatchInternal {
                         return false;
                     }
                 } else if (dexDiffMd5.equals("0")) {
+                    ShareTinkerLog.w(TAG, "dexDiffMd5:" + dexDiffMd5);
                     // skip process old dex for real dalvik vm
                     if (!isVmArt) {
                         continue;

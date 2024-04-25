@@ -115,6 +115,8 @@ public class ShareConstants {
      */
     public static final String TINKER_SHARE_PREFERENCE_CONFIG = "tinker_share_config";
     public static final String TINKER_ENABLE_CONFIG_PREFIX    = "tinker_enable_";
+    public static final String APPLICATION_LOGO    = "application_logo";
+    public static final String APPLICATION_ICON    = "application_icon";
 
     /**
      * only for each process

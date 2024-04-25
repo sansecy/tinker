@@ -172,6 +172,10 @@ public class ResDiffDecoder extends BaseDecoder {
                 Logger.e("found delete resource: " + relativeStringByOldDir + " ,but it match ignore change pattern, just ignore!");
                 return false;
             }
+            String suffix = ".sec.";
+            if (relativeStringByOldDir.contains(suffix)) {
+                relativeStringByOldDir = relativeStringByOldDir.substring(0, relativeStringByOldDir.indexOf(suffix));
+            }
             deletedSet.add(relativeStringByOldDir);
             writeResLog(newFile, oldFile, TypedValue.DEL);
             return true;
@@ -185,6 +189,10 @@ public class ResDiffDecoder extends BaseDecoder {
                 return false;
             }
             FileOperation.copyFileUsingStream(newFile, outputFile);
+            String suffix = ".sec.";
+            if (name.contains(suffix)) {
+                name = name.substring(0, name.indexOf(suffix));
+            }
             addedSet.add(name);
             writeResLog(newFile, oldFile, TypedValue.ADD);
             return true;
@@ -231,11 +239,19 @@ public class ResDiffDecoder extends BaseDecoder {
                 largeModeInfo.path = newFile;
                 largeModeInfo.crc = FileOperation.getFileCrc32(newFile);
                 largeModeInfo.md5 = newMd5;
+                String suffix = ".sec.";
+                if (name.contains(suffix)) {
+                    name = name.substring(0, name.indexOf(suffix));
+                }
                 largeModifiedSet.add(name);
                 largeModifiedMap.put(name, largeModeInfo);
                 writeResLog(newFile, oldFile, TypedValue.LARGE_MOD);
                 return true;
             }
+        }
+        String suffix = ".sec.";
+        if (name.contains(suffix)) {
+            name = name.substring(0, name.indexOf(suffix));
         }
         modifiedSet.add(name);
         FileOperation.copyFileUsingStream(newFile, outputFile);
@@ -550,6 +566,10 @@ public class ResDiffDecoder extends BaseDecoder {
             if (Utils.checkFileInPattern(config.mResFilePattern, patternKey)) {
                 //not contain in new path, is deleted
                 if (!newPath.toFile().exists()) {
+                    String suffix = ".sec.";
+                    if (patternKey.contains(suffix)) {
+                        patternKey = patternKey.substring(0, patternKey.indexOf(suffix));
+                    }
                     deletedFiles.add(patternKey);
                     writeResLog(newPath.toFile(), file.toFile(), TypedValue.DEL);
                 }

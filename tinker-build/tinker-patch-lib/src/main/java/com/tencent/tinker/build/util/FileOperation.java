@@ -201,6 +201,10 @@ public class FileOperation {
                 if (parentFile != null && (!parentFile.exists())) {
                     parentFile.mkdirs();
                 }
+                if (file.exists()) {
+                    file = new File(filePath + File.separator + entry.getName() + ".sec." + System.currentTimeMillis());
+                }
+
                 FileOutputStream fos = null;
                 BufferedOutputStream bos = null;
                 try {
@@ -261,6 +265,10 @@ public class FileOperation {
             //linux format！！
             if (rootpath.contains("\\")) {
                 rootpath = rootpath.replace("\\", "/");
+            }
+            String suffix = ".sec.";
+            if (rootpath.contains(suffix)) {
+                rootpath = rootpath.substring(0, rootpath.indexOf(suffix));
             }
             ZipEntry entry = new ZipEntry(rootpath);
             // if (compressMethod == ZipEntry.DEFLATED) {
@@ -376,6 +384,9 @@ public class FileOperation {
         String path = outPath + File.separator + "*";
         String cmd = config.mSevenZipPath;
 
+        if (cmd == null || !new File(cmd).exists()) {
+            return false;
+        }
         ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", outputFile.getAbsolutePath(), path, "-mx9");
         pb.redirectErrorStream(true);
         Process pro = null;

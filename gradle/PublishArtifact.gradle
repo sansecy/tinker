@@ -1,4 +1,4 @@
-apply from: rootProject.file('gradle/WeChatPublish.gradle')
+//apply from: rootProject.file('gradle/WeChatPublish.gradle')
 
 def checkAndGetOption(name) {
     if (!project.hasProperty(name)) {
@@ -7,28 +7,47 @@ def checkAndGetOption(name) {
     return project[name]
 }
 
-wechatPublish {
-    pom {
-        name = checkAndGetOption('POM_NAME')
-        description = checkAndGetOption('POM_DESCRIPTION')
-        url = checkAndGetOption('POM_URL')
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = GROUP
+            artifactId = project.name
+            version = TINKER_VERSION
 
-        scm {
-            url = checkAndGetOption('POM_SCM_URL')
-        }
-
-        licenses {
-            license {
-                name = checkAndGetOption('POM_LICENCE_NAME')
-                url = checkAndGetOption('POM_LICENCE_URL')
-            }
-        }
-
-        developers {
-            developer {
-                id = checkAndGetOption('POM_DEVELOPER_ID')
-                name = checkAndGetOption('POM_DEVELOPER_NAME')
+            try {
+                from components.java
+            } catch (Exception e) {
+                afterEvaluate {
+                    from components.release
+                }
             }
         }
     }
 }
+
+//wechatPublish {
+//    pom {
+//        name = checkAndGetOption('POM_NAME')
+//        description = checkAndGetOption('POM_DESCRIPTION')
+//        url = checkAndGetOption('POM_URL')
+//
+//        scm {
+//            url = checkAndGetOption('POM_SCM_URL')
+//        }
+//
+//        licenses {
+//            license {
+//                name = checkAndGetOption('POM_LICENCE_NAME')
+//                url = checkAndGetOption('POM_LICENCE_URL')
+//            }
+//        }
+//
+//        developers {
+//            developer {
+//                id = checkAndGetOption('POM_DEVELOPER_ID')
+//                name = checkAndGetOption('POM_DEVELOPER_NAME')
+//            }
+//        }
+//    }
+//}

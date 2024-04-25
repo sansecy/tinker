@@ -17,6 +17,7 @@
 package com.tencent.tinker.build.decoder;
 
 
+import com.tencent.tinker.build.info.InfoWriter;
 import com.tencent.tinker.build.patch.Configuration;
 import com.tencent.tinker.build.util.FileOperation;
 import com.tencent.tinker.build.util.Logger;
@@ -47,6 +48,7 @@ public class ApkDecoder extends BaseDecoder {
     private final SoDiffDecoder        soPatchDecoder;
     private final ResDiffDecoder       resPatchDecoder;
     private final ArkHotDecoder        arkHotDecoder;
+    private final InfoWriter mInfoWriter;
 
     /**
      * if resource's file is also contain in dex or library pattern,
@@ -70,6 +72,8 @@ public class ApkDecoder extends BaseDecoder {
         arkHotDecoder = new ArkHotDecoder(config, prePath + TypedValue.ARKHOT_META_TXT);
         Logger.d("config: " + config.mArkHotPatchPath + " " + config.mArkHotPatchName + prePath + TypedValue.ARKHOT_META_TXT);
         resDuplicateFiles = new ArrayList<>();
+
+        mInfoWriter = new InfoWriter(config, config.mOutFolder + File.separator + "apk.log");
     }
 
     private void unzipApkFile(File file, File destFile) throws TinkerPatchException, IOException {
@@ -158,6 +162,8 @@ public class ApkDecoder extends BaseDecoder {
             this.resDecoder = resDecoder;
             this.newApkPath = newPath;
             this.oldApkPath = oldPath;
+            mInfoWriter.writeLineToInfoFile("ApkFilesVisitor: oldApkPath: " + oldApkPath);
+            mInfoWriter.writeLineToInfoFile("ApkFilesVisitor: newApkPath: " + newApkPath);
         }
 
         @Override
@@ -172,6 +178,7 @@ public class ApkDecoder extends BaseDecoder {
             if (oldPath.toFile().exists()) {
                 oldFile = oldPath.toFile();
             }
+            mInfoWriter.writeLineToInfoFile("visitFile: " + file);
             String patternKey = relativePath.toString().replace("\\", "/");
 
             if (Utils.checkFileInPattern(config.mDexFilePattern, patternKey)) {
@@ -199,8 +206,10 @@ public class ApkDecoder extends BaseDecoder {
                     if (newAbi != null) {
                         final File oldSoPathWithNewAbi = new File(oldApkPath.toFile(), "lib/" + newAbi);
                         if (!oldSoPathWithNewAbi.exists()) {
-                            throw new UnsupportedOperationException("Tinker does not support to add new ABI: " + newAbi
-                                    + ", related new so: " + file.toFile().getAbsolutePath());
+                            System.out.println("old APK does not support ABI: " + oldSoPathWithNewAbi + " , skipped ");
+                            return FileVisitResult.CONTINUE;
+//                            throw new UnsupportedOperationException("Tinker does not support to add new ABI: " + newAbi
+//                                    + ", related new so: " + file.toFile().getAbsolutePath());
                         }
                     }
                 }

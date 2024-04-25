@@ -755,6 +755,7 @@ public class ShareTinkerInternals {
             if (!patchInfo.newVersion.equals(patchInfo.oldVersion)) {
                 // newVersion hasn't been loaded yet, we can remove it directly now.
                 final String patchName = SharePatchFileUtil.getPatchVersionDirectory(patchInfo.newVersion);
+                ShareTinkerLog.d(TAG, "cleanPatch: " + new File(tinkerDir, patchName));
                 SharePatchFileUtil.deleteDir(new File(tinkerDir, patchName));
                 patchInfo.newVersion = patchInfo.oldVersion;
                 patchInfo.versionToRemove = "";

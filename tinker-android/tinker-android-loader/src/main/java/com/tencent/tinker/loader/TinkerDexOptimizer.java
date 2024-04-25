@@ -179,28 +179,28 @@ public final class TinkerDexOptimizer {
                             createFakeODexPathStructureOnDemand(optimizedPath);
                             patchClassLoaderStrongRef = NewClassLoaderInjector.triggerDex2Oat(context, optimizedDir,
                                     useDLC, dexFile.getAbsolutePath());
-                            final Runnable task = new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        triggerPMDexOptOnDemand(context, dexFile.getAbsolutePath(), optimizedPath);
-                                    } catch (Throwable thr) {
-                                        ShareTinkerLog.printErrStackTrace(TAG, thr,
-                                                "Fail to call triggerPMDexOptAsyncOnDemand.");
-                                    } finally {
-                                        if (!useEmergencyMode) {
-                                            final String vdexPath = optimizedPath.substring(0,
-                                                    optimizedPath.lastIndexOf(ODEX_SUFFIX)) + VDEX_SUFFIX;
-                                            waitUntilFileGeneratedOrTimeout(context, vdexPath);
-                                        }
-                                    }
-                                }
-                            };
-                            if (useEmergencyMode) {
-                                new Thread(task, "TinkerDex2oatTrigger").start();
-                            } else {
-                                task.run();
-                            }
+//                            final Runnable task = new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    try {
+//                                        triggerPMDexOptOnDemand(context, dexFile.getAbsolutePath(), optimizedPath);
+//                                    } catch (Throwable thr) {
+//                                        ShareTinkerLog.printErrStackTrace(TAG, thr,
+//                                                "Fail to call triggerPMDexOptAsyncOnDemand.");
+//                                    } finally {
+//                                        if (!useEmergencyMode) {
+//                                            final String vdexPath = optimizedPath.substring(0,
+//                                                    optimizedPath.lastIndexOf(ODEX_SUFFIX)) + VDEX_SUFFIX;
+//                                            waitUntilFileGeneratedOrTimeout(context, vdexPath);
+//                                        }
+//                                    }
+//                                }
+//                            };
+//                            if (useEmergencyMode) {
+//                                new Thread(task, "TinkerDex2oatTrigger").start();
+//                            } else {
+//                                task.run();
+//                            }
                         } else {
                             patchClassLoaderStrongRef = NewClassLoaderInjector.triggerDex2Oat(context, optimizedDir,
                                     useDLC, dexFile.getAbsolutePath());

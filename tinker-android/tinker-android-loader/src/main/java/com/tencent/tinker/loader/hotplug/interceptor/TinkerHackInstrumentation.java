@@ -6,14 +6,17 @@ import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PersistableBundle;
+import android.util.Log;
 
 import com.tencent.tinker.loader.TinkerRuntimeException;
 import com.tencent.tinker.loader.hotplug.EnvConsts;
 import com.tencent.tinker.loader.hotplug.IncrementComponentManager;
+import com.tencent.tinker.loader.shareutil.ShareConstants;
 import com.tencent.tinker.loader.shareutil.ShareIntentUtil;
 import com.tencent.tinker.loader.shareutil.ShareReflectUtil;
 import com.tencent.tinker.loader.shareutil.ShareTinkerLog;
@@ -84,23 +87,32 @@ public class TinkerHackInstrumentation extends Instrumentation {
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
+        patchActivityInfo(activity);
+        super.callActivityOnCreate(activity, icicle);
+    }
+
+    private void patchActivityInfo(Activity activity) {
         if (activity != null) {
-            final ActivityInfo targetAInfo = IncrementComponentManager.queryActivityInfo(activity.getClass().getName());
-            if (targetAInfo != null) {
-                fixActivityParams(activity, targetAInfo);
+            try {
+                final Field aInfoField = ShareReflectUtil.findField(activity, "mActivityInfo");
+                ActivityInfo targetAInfo = (ActivityInfo) aInfoField.get(activity);
+//              targetAInfo = IncrementComponentManager.queryActivityInfo(activity.getClass().getName());
+                SharedPreferences sp = activity.getSharedPreferences(ShareConstants.TINKER_SHARE_PREFERENCE_CONFIG, Context.MODE_MULTI_PROCESS);
+                int logo = sp.getInt(ShareConstants.APPLICATION_LOGO, 0);
+                int icon = sp.getInt(ShareConstants.APPLICATION_ICON, 0);
+                if (targetAInfo != null) {
+                    targetAInfo.logo = logo;
+                    targetAInfo.icon = icon;
+                    fixActivityParams(activity, targetAInfo);
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
             }
         }
-        super.callActivityOnCreate(activity, icicle);
     }
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
-        if (activity != null) {
-            final ActivityInfo targetAInfo = IncrementComponentManager.queryActivityInfo(activity.getClass().getName());
-            if (targetAInfo != null) {
-                fixActivityParams(activity, targetAInfo);
-            }
-        }
+        patchActivityInfo(activity);
         super.callActivityOnCreate(activity, icicle, persistentState);
     }
 

@@ -1,1 +1,9 @@
 include ':app'
+includeBuild("../") {
+    dependencySubstitution {
+        substitute module("com.tencent.tinker:tinker-android-loader:${TINKER_VERSION}") using project(':tinker-android:tinker-android-loader')
+        substitute module("com.tencent.tinker:tinker-android-anno:${TINKER_VERSION}") using project(':tinker-android:tinker-android-anno')
+        substitute module("com.tencent.tinker:tinker-android-anno-support:${TINKER_VERSION}") using project(':tinker-android:tinker-android-anno-support')
+        substitute module("com.tencent.tinker:tinker-android-lib:${TINKER_VERSION}") using project(':tinker-android:tinker-android-lib')
+    }
+}

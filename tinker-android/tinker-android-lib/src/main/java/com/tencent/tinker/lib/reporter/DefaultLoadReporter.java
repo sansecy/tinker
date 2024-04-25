@@ -18,6 +18,7 @@ package com.tencent.tinker.lib.reporter;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import com.tencent.tinker.lib.service.TinkerPatchService;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -58,8 +59,8 @@ public class DefaultLoadReporter implements LoadReporter {
      */
     @Override
     public void onLoadPatchListenerReceiveFail(File patchFile, int errorCode) {
-        ShareTinkerLog.i(TAG, "patch loadReporter onLoadPatchListenerReceiveFail: patch receive fail: %s, code: %d",
-            patchFile.getAbsolutePath(), errorCode);
+        ShareTinkerLog.i(TAG, "patch loadReporter onLoadPatchListenerReceiveFail: patch receive fail: %s, exist: %s, code: %d",
+                patchFile.getAbsolutePath(), patchFile.exists(), errorCode);
     }
 
 
@@ -104,6 +105,7 @@ public class DefaultLoadReporter implements LoadReporter {
             for (File file : files) {
                 String name = file.getName();
                 if (file.isDirectory() && !name.equals(currentPatchName)) {
+                    ShareTinkerLog.d(TAG, "onLoadPatchVersionChanged: clean file:" + file);
                     SharePatchFileUtil.deleteDir(file);
                 }
             }

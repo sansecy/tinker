@@ -4,6 +4,31 @@ version rootProject.ext.VERSION_NAME
 group rootProject.ext.GROUP
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+sourceSets {
+    main {
+        java {
+            // 移除重复的注解处理器配置
+            exclude 'META-INF/services/javax.annotation.processing.Processor'
+        }
+    }
+}
+configurations {
+    all*.exclude group: 'com.example', module: 'duplicate-processor'
+}
+sourceSets {
+    main {
+        java {
+            exclude 'META-INF/services/javax.annotation.processing.Processor'
+        }
+        resources {
+            exclude 'META-INF/services/javax.annotation.processing.Processor'
+            exclude 'TinkerAnnoApplication.tmpl'
+        }
+    }
+}
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ["-Ajavax.annotation.processing.duplicates=ignore"]
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

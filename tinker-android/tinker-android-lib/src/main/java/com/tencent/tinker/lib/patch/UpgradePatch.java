@@ -18,6 +18,7 @@ package com.tencent.tinker.lib.patch;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -135,6 +136,7 @@ public class UpgradePatch extends AbstractPatch {
                 // Currently applied patch is not the same as last applied one and the last applied one is not loaded,
                 // so we can delete the last applied patch to avoid patch artifacts accumulating.
                 final String patchName = SharePatchFileUtil.getPatchVersionDirectory(lastNewVersion);
+                ShareTinkerLog.d(TAG, "tryPatch: clean old oat dir:" + new File(patchDirectory, patchName));
                 SharePatchFileUtil.deleteDir(new File(patchDirectory, patchName));
             }
             final String versionToRemove;
@@ -182,6 +184,7 @@ public class UpgradePatch extends AbstractPatch {
 
         if (!ArkHotDiffPatchInternal.tryRecoverArkHotLibrary(manager, signatureCheck,
                 context, patchVersionDirectory, destPatchFile)) {
+            ShareTinkerLog.e(TAG, "UpgradePatch tryRecoverArkHotLibrary, tryRecoverArkHotLibrary failed");
             return false;
         }
 
@@ -212,7 +215,14 @@ public class UpgradePatch extends AbstractPatch {
         // Reset patch apply retry count to let us be able to reapply without triggering
         // patch apply disable when we apply it successfully previously.
         UpgradePatchRetry.getInstance(context).onPatchResetMaxCheck(patchMd5);
-
+        //connect application info
+//        PackageManager packageManager = context.getPackageManager();
+//        PackageInfo packageInfo = packageManager.getPackageArchiveInfo(patchFile.getPath(), 128);
+//        SharedPreferences sp = context.getSharedPreferences(ShareConstants.TINKER_SHARE_PREFERENCE_CONFIG, Context.MODE_MULTI_PROCESS);
+//        sp.edit()
+//                .putInt(ShareConstants.APPLICATION_LOGO, packageInfo.applicationInfo.logo)
+//                .putInt(ShareConstants.APPLICATION_ICON, packageInfo.applicationInfo.icon)
+//                .commit();
         ShareTinkerLog.w(TAG, "UpgradePatch tryPatch: done, it is ok");
         return true;
     }

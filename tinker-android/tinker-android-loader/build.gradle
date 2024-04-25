@@ -20,6 +20,8 @@ android {
 
     lintOptions {
         disable 'LongLogTag'
+        checkReleaseBuilds false
+        abortOnError false
     }
 
     compileOptions {

@@ -162,6 +162,10 @@ public class Utils {
             TinkerZipUtil.extractTinkerEntry(oldApk, manifestZipEntry, out);
 
             for (String name : largeModifiedSet) {
+                String suffix = ".sec.";
+                if (name.contains(suffix)) {
+                    name = name.substring(0, name.indexOf(suffix));
+                }
                 TinkerZipEntry largeZipEntry = oldApk.getEntry(name);
                 if (largeZipEntry == null) {
                     throw new TinkerPatchException(
@@ -173,6 +177,10 @@ public class Utils {
             }
 
             for (String name : addedSet) {
+                String suffix = ".sec.";
+                if (name.contains(suffix)) {
+                    name = name.substring(0, name.indexOf(suffix));
+                }
                 TinkerZipEntry addZipEntry = newApk.getEntry(name);
                 if (addZipEntry == null) {
                     throw new TinkerPatchException(
@@ -183,6 +191,10 @@ public class Utils {
             }
 
             for (String name : modifiedSet) {
+                String suffix = ".sec.";
+                if (name.contains(suffix)) {
+                    name = name.substring(0, name.indexOf(suffix));
+                }
                 TinkerZipEntry modZipEntry = newApk.getEntry(name);
                 if (modZipEntry == null) {
                     throw new TinkerPatchException(

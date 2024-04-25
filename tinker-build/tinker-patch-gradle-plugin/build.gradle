@@ -32,5 +32,11 @@ sourceSets {
     }
 }
 
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 apply from: rootProject.file('gradle/PublishArtifact.gradle')
 

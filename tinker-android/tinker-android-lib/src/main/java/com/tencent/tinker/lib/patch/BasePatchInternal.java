@@ -67,7 +67,7 @@ public class BasePatchInternal {
             try {
                 is = new BufferedInputStream(zipFile.getInputStream(entryFile));
                 os = new BufferedOutputStream(new FileOutputStream(extractTo));
-                extractTo.setReadOnly();
+
                 byte[] buffer = new byte[ShareConstants.BUFFER_SIZE];
                 int length = 0;
                 while ((length = is.read(buffer)) > 0) {

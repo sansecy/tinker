@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.tencent.tinker.lib.filepatch.AbstractFilePatch;
-import com.tencent.tinker.lib.filepatch.FilePatchFactory;
 import com.tencent.tinker.lib.listener.DefaultPatchListener;
 import com.tencent.tinker.lib.listener.PatchListener;
 import com.tencent.tinker.lib.patch.AbstractPatch;
@@ -291,6 +290,7 @@ public class Tinker {
             return;
         }
         String path = patchDirectory.getAbsolutePath() + "/" + versionName;
+        ShareTinkerLog.d(TAG, "cleanPatchByVersion: " + path);
         SharePatchFileUtil.deleteDir(path);
     }
 

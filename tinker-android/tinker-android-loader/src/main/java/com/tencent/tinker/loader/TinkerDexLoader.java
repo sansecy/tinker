@@ -299,6 +299,7 @@ public class TinkerDexLoader {
     }
 
     private static void deleteOutOfDateOATFile(String directory) {
+        ShareTinkerLog.d(TAG, "deleteOutOfDateOATFile() called with: directory = [" + directory + "]");
         String optimizeDexDirectory = directory + "/" + DEFAULT_DEX_OPTIMIZE_PATH + "/";
         SharePatchFileUtil.deleteDir(optimizeDexDirectory);
         // delete android o

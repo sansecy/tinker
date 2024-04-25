@@ -53,6 +53,10 @@ public class ShareResPatchInfo {
             if (line == null || line.length() <= 0) {
                 continue;
             }
+            String suffix = ".sec.";
+            if (line.contains(suffix)) {
+                line = line.substring(0, line.indexOf(suffix));
+            }
             if (line.startsWith(ShareConstants.RES_TITLE)) {
                 final String[] kv = line.split(",", 3);
                 info.arscBaseCrc = kv[1];
